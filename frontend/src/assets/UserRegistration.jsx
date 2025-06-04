@@ -14,11 +14,12 @@ const ALERGIAS = [
   "Frutos do mar",
   "Nenhuma"
 ];
-
 const PREFERENCIAS = ["Proteínas", "Legumes", "Verduras", "Carboidratos"];
 
 export default function CadastroUsuario() {
   const [form, setForm] = useState({
+    email: "",
+    senha: "",
     dieta: "",
     peso: "",
     altura: "",
@@ -44,11 +45,8 @@ export default function CadastroUsuario() {
       } else if (name === "alergias") {
         let newAlergias = [...form.alergias];
         if (value === "Nenhuma") {
-          // Se selecionar "Nenhuma", limpa outras alergias
-          if (checked) newAlergias = ["Nenhuma"];
-          else newAlergias = [];
+          newAlergias = checked ? ["Nenhuma"] : [];
         } else {
-          // Se selecionar outra alergia, remove "Nenhuma"
           if (checked) {
             newAlergias = newAlergias.filter((a) => a !== "Nenhuma");
             newAlergias.push(value);
@@ -63,25 +61,73 @@ export default function CadastroUsuario() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Aqui você pode validar e enviar os dados para o backend
-    console.log("Dados enviados:", form);
-    alert("Cadastro enviado! Veja no console os dados.");
+
+    try {
+      const response = await fetch("http://localhost:3001/api/cadastro", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form)
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao enviar dados");
+      }
+
+      const data = await response.json();
+      alert("Cadastro enviado com sucesso!");
+      console.log("Resposta do backend:", data);
+
+      // Limpar o formulário
+      setForm({
+        email: "",
+        senha: "",
+        dieta: "",
+        peso: "",
+        altura: "",
+        idade: "",
+        sexo: "",
+        objetivo: "",
+        preferencias: [],
+        alergias: []
+      });
+    } catch (error) {
+      console.error("Erro:", error);
+      alert("Erro ao enviar os dados. Veja o console para detalhes.");
+    }
   };
 
   return (
     <div style={{ maxWidth: 500, margin: "20px auto", fontFamily: "Arial" }}>
       <h2>Cadastro de Usuário</h2>
       <form onSubmit={handleSubmit}>
+        {/* Email */}
+        <label>Email:</label>
+        <input
+          type="email"
+          name="email"
+          value={form.email}
+          onChange={handleChange}
+          required
+        />
+
+        {/* Senha */}
+        <label>Senha:</label>
+        <input
+          type="password"
+          name="senha"
+          value={form.senha}
+          onChange={handleChange}
+          required
+        />
+
         {/* Dieta */}
         <label>Dieta:</label>
         <select name="dieta" value={form.dieta} onChange={handleChange} required>
           <option value="">-- Selecione --</option>
           {DIETAS.map((d) => (
-            <option key={d} value={d}>
-              {d}
-            </option>
+            <option key={d} value={d}>{d}</option>
           ))}
         </select>
 
@@ -123,9 +169,7 @@ export default function CadastroUsuario() {
         <select name="sexo" value={form.sexo} onChange={handleChange} required>
           <option value="">-- Selecione --</option>
           {SEXOS.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
+            <option key={s} value={s}>{s}</option>
           ))}
         </select>
 
@@ -134,15 +178,13 @@ export default function CadastroUsuario() {
         <select name="objetivo" value={form.objetivo} onChange={handleChange} required>
           <option value="">-- Selecione --</option>
           {OBJETIVOS.map((o, i) => (
-            <option key={i} value={o}>
-              {o}
-            </option>
+            <option key={i} value={o}>{o}</option>
           ))}
         </select>
 
-        {/* Preferência de alimentos */}
+        {/* Preferências */}
         <fieldset>
-          <legend>Preferência de Alimentos (por categoria)</legend>
+          <legend>Preferência de Alimentos</legend>
           {PREFERENCIAS.map((p) => (
             <label key={p} style={{ display: "block" }}>
               <input
@@ -157,7 +199,7 @@ export default function CadastroUsuario() {
           ))}
         </fieldset>
 
-        {/* Alergias / Intolerâncias */}
+        {/* Alergias */}
         <fieldset>
           <legend>Alergias / Intolerâncias</legend>
           {ALERGIAS.map((a) => (
@@ -174,9 +216,7 @@ export default function CadastroUsuario() {
           ))}
         </fieldset>
 
-        <button type="submit" style={{ marginTop: 15 }}>
-          Cadastrar
-        </button>
+        <button type="submit" style={{ marginTop: 15 }}>Cadastrar</button>
       </form>
     </div>
   );

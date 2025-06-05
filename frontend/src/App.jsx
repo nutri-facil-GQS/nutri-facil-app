@@ -1,36 +1,45 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
-  const string  = "Hello, World!";
+import Imc from './pages/Imc'
+import CadastrarDieta from './pages/CadastrarDieta'
+import Lista from './pages/Lista'
+import Login from './pages/Login'
+import Sidebar from './components/Sidebar'
 
+function AppContent() {
+  const location = useLocation();
+
+  // Se estiver na rota /login, renderiza só o Login
+  if (location.pathname === '/login') {
+    return <Login />;
+  }
+
+  // Caso contrário, renderiza o layout da aplicação
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="d-flex">
+      <Sidebar />
+      <div className="flex-grow-1 p-3" style={{ marginLeft: 220 }}>
+        <Routes>
+          <Route path="/" element={<Lista />} />
+          <Route path="/imc" element={<Imc />} />
+          <Route path="/cadastrar-dieta" element={<CadastrarDieta />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={<AppContent />} />
+      </Routes>
+    </Router>
+  );
 }
 
 export default App

@@ -1,7 +1,9 @@
 import express from 'express';
+import cors from 'cors';
 
 const app = express();
 
+app.use(cors())
 app.use(express.json());
 
 const port = process.env.PORT || 3000;
@@ -62,22 +64,20 @@ app.post('/api/imc', (req, res) => {
     // Body Mass Index (BMI) calculation
     const bmi = Number((weightNum / Math.pow((heightNum / 100), 2)).toFixed(2));
 
-    console.log(`Calculated BMI: ${bmi} for weight: ${weightNum} kg and height: ${heightNum} cm`);
-
     if(bmi < 18.5) {
-        return res.json({ bmi: bmi, classification: "Underweight" });
+        return res.json({ imc: bmi, classification: "Abaixo do peso" });
     }
 
     if(bmi >= 18.5 && bmi < 24.9) {
-        return res.json({ bmi: bmi, classification: "Normal weight" });
+        return res.json({ imc: bmi, classification: "Normal" });
     }
     
     if(bmi >= 25 && bmi < 29.9) {
-        return res.json({ bmi: bmi, classification: "Overweight" });
+        return res.json({ imc: bmi, classification: "Sobrepeso" });
     }
 
     if(bmi >= 30) {
-        return res.json({ bmi: bmi, classification: "Obesity" });
+        return res.json({ imc: bmi, classification: "Obeso" });
     }
 })
   

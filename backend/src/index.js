@@ -15,36 +15,6 @@ app.get('/', (req, res) => {
     });
 })
 
-app.get('/api', (req, res) => {
-    res.json({
-        endpoints: [
-            {
-                method: "POST",
-                path: "/api/imc",
-                description: "Calculates BMI (Body Mass Index) and returns classification.",
-                body: {
-                    type: "application/json",
-                    params: {
-                        weight: "number (kg)",
-                        height: "number (cm)"
-                    }
-                },
-                response: {
-                    type: "application/json",
-                    body: {
-                        imc: "number (calculated BMI)",
-                        classification: "string (BMI classification)"
-                    },
-                    status: {
-                        200: "Success. Returns imc and classification.",
-                        400: "Bad Request. Invalid weight or height provided."
-                    }
-                }
-            }
-        ]
-    });
-})
-
 app.post('/api/imc', (req, res) => {
     const { weight, height } = req.body;
 
@@ -79,6 +49,24 @@ app.post('/api/imc', (req, res) => {
     if(bmi >= 30) {
         return res.json({ bmi: bmi, classification: "Obesity" });
     }
+})
+
+app.post('/api/water', (req, res) => {
+    const { weight } = req.body;
+
+    if(weight === undefined) {
+        return res.status(400).json({ error: "Weight is required." });
+    }
+
+    if (isNaN(weight) || weight <= 0) {
+        return res.status(400).json({ error: "Invalid weight provided." });
+    }
+
+    const calc = (35 * weight);
+
+    res.status(200).json({
+        result: calc,
+    })
 })
   
 app.listen(port, () => {

@@ -40,6 +40,15 @@ function Sidebar() {
             Cadastrar Dieta
           </Link>
         </li>
+        <li>
+          <Link
+            to="/agua"
+            className={`nav-link${location.pathname === '/agua' ? ' active bg-light text-primary' : ' text-white'}`}
+            style={{ fontWeight: 500 }}
+          >
+            Água Diária
+          </Link>
+        </li>
       </ul>
     </div>
   );

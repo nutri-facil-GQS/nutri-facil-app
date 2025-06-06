@@ -6,6 +6,7 @@ import CadastrarDieta from './pages/CadastrarDieta'
 import Lista from './pages/Lista'
 import Login from './pages/Login'
 import Sidebar from './components/Sidebar'
+import Agua from './pages/Agua' 
 
 function AppContent() {
   const location = useLocation();
@@ -24,6 +25,7 @@ function AppContent() {
           <Route path="/" element={<Lista />} />
           <Route path="/imc" element={<Imc />} />
           <Route path="/cadastrar-dieta" element={<CadastrarDieta />} />
+          <Route path="/agua" element={<Agua />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>

@@ -79,7 +79,7 @@ export default function WaterCalculator() {
             <div className="alert alert-info mt-4" role="alert">
               <h4 className="alert-heading">Resultado:</h4>
               <p className="mb-0">
-                {result.message || `Você deve beber ${result.waterAmount}ml de água por dia`}
+                {result.message || `Você deve beber ${result.result}ml de água por dia`}
               </p>
             </div>
           )}

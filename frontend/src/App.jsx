@@ -4,6 +4,7 @@ import CadastrarDieta from './pages/CadastrarDieta'
 import Lista from './pages/Lista'
 import Login from './pages/Login'
 import Sidebar from './components/Sidebar'
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function AppContent() {
   const location = useLocation();

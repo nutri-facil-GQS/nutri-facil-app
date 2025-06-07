@@ -19,16 +19,18 @@ const dbPromise = open({
 app.post('/api/cadastro', async (req, res) => {
   const db = await dbPromise;
   const {
-    email, senha, dieta, peso, altura, idade, sexo,
+    email, // senha removida
+    dieta, peso, altura, idade, sexo,
     objetivo, preferencias, alergias
   } = req.body;
 
   const ID_USUARIO = randomUUID();
 
   try {
+    // Não criptografa mais senha, salva apenas email
     await db.run(
-      `INSERT INTO USUARIO (ID_USUARIO, EMAIL, SENHA) VALUES (?, ?, ?)`,
-      [ID_USUARIO, email, senha]
+      `INSERT INTO USUARIO (ID_USUARIO, EMAIL) VALUES (?, ?)`,
+      [ID_USUARIO, email]
     );
 
     const dietaRow = await db.get(`SELECT ID_DIETA FROM DIETA WHERE NOME = ?`, [dieta]);
@@ -38,7 +40,9 @@ app.post('/api/cadastro', async (req, res) => {
       return res.status(400).json({ error: "Dieta ou Objetivo inválido." });
     }
 
-    const result = await db.run(
+    const preferenciasEAlergias = [...preferencias, ...alergias].join(';');
+
+    await db.run(
       `INSERT INTO DIETA_USUARIO (
         ID_USUARIO, ID_DIETA, PESO, ALTURA, IDADE, SEXO,
         ID_OBJETIVO, ID_PREFERENCIA, NOME_PERSOLIZADO
@@ -51,27 +55,35 @@ app.post('/api/cadastro', async (req, res) => {
         idade,
         sexo,
         objetivoRow.ID_OBJETIVO,
-        preferencias.join(','),
+        preferenciasEAlergias,
         "Plano Personalizado"
       ]
     );
-
-    const ID_DIETA_USUARIO = result.lastID;
-
-    for (const alergiaNome of alergias) {
-      const alergiaRow = await db.get(`SELECT ID_ALERGIA FROM ALERGIAS WHERE NOME = ?`, [alergiaNome]);
-      if (alergiaRow) {
-        await db.run(
-          `INSERT INTO DIETA_ALERGIAS (ID_DIETA_USUARIO, ID_ALERGIA) VALUES (?, ?)`,
-          [ID_DIETA_USUARIO, alergiaRow.ID_ALERGIA]
-        );
-      }
-    }
-
     res.status(201).json({ message: "Cadastro realizado com sucesso!" });
   } catch (error) {
-    console.error("Erro ao cadastrar:", error);
     res.status(500).json({ error: "Erro ao cadastrar usuário" });
+  }
+});
+
+app.get('/api/dietas', async (req, res) => {
+  try {
+    const db = await dbPromise;
+    const dietas = await db.all('SELECT NOME FROM DIETA');
+    res.json(dietas);
+  } catch (error) {
+    console.error("Erro ao buscar dietas:", error);
+    res.status(500).json({ error: "Erro ao buscar dietas" });
+  }
+});
+
+app.get('/api/objetivos', async (req, res) => {
+  try {
+    const db = await dbPromise;
+    const objetivos = await db.all('SELECT NOME FROM OBJETIVO');
+    res.json(objetivos);
+  } catch (error) {
+    console.error("Erro ao buscar objetivos:", error);
+    res.status(500).json({ error: "Erro ao buscar objetivos" });
   }
 });
 

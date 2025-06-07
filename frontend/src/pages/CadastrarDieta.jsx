@@ -1,12 +1,7 @@
 import React, { useState } from "react";
 import { z } from "zod";
 
-const DIETAS = ["Mediterrânea", "Low Carb", "Cetogênica", "Vegetariana"];
 const SEXOS = ["Masculino", "Feminino"];
-const OBJETIVOS = [
-  "Emagrecimento (perda de gordura, redução de medidas, aumento de energia, etc.)",
-  "Hipertrofia (ganho de massa, aumento de força, autoestima, etc.)"
-];
 const ALERGIAS = [
   "Lactose",
   "Glúten",
@@ -17,23 +12,11 @@ const ALERGIAS = [
 ];
 const PREFERENCIAS = ["Proteínas", "Legumes", "Verduras", "Carboidratos"];
 
-const dietaSchema = z.object({
-  email: z.string().email("Email inválido"),
-  senha: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
-  dieta: z.string().min(1, "Selecione uma dieta"),
-  peso: z.number({ invalid_type_error: "Peso deve ser um número" }).min(1, "Peso deve ser maior que zero"),
-  altura: z.number({ invalid_type_error: "Altura deve ser um número" }).min(1, "Altura deve ser maior que zero"),
-  idade: z.number({ invalid_type_error: "Idade deve ser um número" }).min(1, "Idade deve ser maior que zero"),
-  sexo: z.string().min(1, "Selecione o sexo"),
-  objetivo: z.string().min(1, "Selecione o objetivo"),
-  preferencias: z.array(z.string()),
-  alergias: z.array(z.string()),
-});
-
 function CadastrarDieta() {
+  const [dietas, setDietas] = useState([]);
+  const [objetivos, setObjetivos] = useState([]);
   const [form, setForm] = useState({
     email: "",
-    senha: "",
     dieta: "",
     peso: "",
     altura: "",
@@ -45,6 +28,16 @@ function CadastrarDieta() {
   });
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState(false);
+
+  React.useEffect(() => {
+    fetch('http://localhost:3001/api/dietas')
+      .then(res => res.json())
+      .then(data => setDietas(data.map(d => d.NOME)));
+
+    fetch('http://localhost:3001/api/objetivos')
+      .then(res => res.json())
+      .then(data => setObjetivos(data.map(o => o.NOME)));
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -79,7 +72,19 @@ function CadastrarDieta() {
     setSuccess(false);
   };
 
-  const handleSubmit = (e) => {
+  const dietaSchema = z.object({
+    email: z.string().email("Email inválido"),
+    dieta: z.string().min(1, "Selecione uma dieta"),
+    peso: z.number({ invalid_type_error: "Peso deve ser um número" }).min(1, "Peso deve ser maior que zero"),
+    altura: z.number({ invalid_type_error: "Altura deve ser um número" }).min(1, "Altura deve ser maior que zero"),
+    idade: z.number({ invalid_type_error: "Idade deve ser um número" }).min(1, "Idade deve ser maior que zero"),
+    sexo: z.string().min(1, "Selecione o sexo"),
+    objetivo: z.string().min(1, "Selecione o objetivo"),
+    preferencias: z.array(z.string()),
+    alergias: z.array(z.string()),
+  });
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
     setSuccess(false);
@@ -103,26 +108,42 @@ function CadastrarDieta() {
       return;
     }
 
-    // Aqui você pode enviar para o backend
-    setSuccess(true);
-    setForm({
-      email: "",
-      senha: "",
-      dieta: "",
-      peso: "",
-      altura: "",
-      idade: "",
-      sexo: "",
-      objetivo: "",
-      preferencias: [],
-      alergias: [],
-    });
+    // ENVIA OS DADOS PARA O BACKEND
+    try {
+      const response = await fetch('http://localhost:3001/api/cadastro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(parsedForm),
+      });
+
+      if (response.ok) {
+        setErrors({}); // Limpa os erros ao ter sucesso!
+        setSuccess(true);
+        setForm({
+          email: "",
+          dieta: "",
+          peso: "",
+          altura: "",
+          idade: "",
+          sexo: "",
+          objetivo: "",
+          preferencias: [],
+          alergias: [],
+        });
+      } else {
+        const data = await response.json();
+        setErrors({ submit: data.error || "Erro ao cadastrar" });
+      }
+    } catch (err) {
+      setErrors({ submit: "Erro de conexão com o servidor" });
+    }
   };
 
   return (
     <div className="container mt-4" style={{ maxWidth: 600 }}>
       <h2 className="mb-4">Cadastro de Dieta</h2>
       <form onSubmit={handleSubmit}>
+        {/* Campo de email */}
         <div className="mb-3">
           <label className="form-label">Email</label>
           <input
@@ -134,17 +155,8 @@ function CadastrarDieta() {
           />
           {errors.email && <div className="invalid-feedback">{errors.email}</div>}
         </div>
-        <div className="mb-3">
-          <label className="form-label">Senha</label>
-          <input
-            type="password"
-            className={`form-control ${errors.senha ? "is-invalid" : ""}`}
-            name="senha"
-            value={form.senha}
-            onChange={handleChange}
-          />
-          {errors.senha && <div className="invalid-feedback">{errors.senha}</div>}
-        </div>
+        {/* Campo de senha removido */}
+        {/* Demais campos do formulário */}
         <div className="mb-3">
           <label className="form-label">Dieta</label>
           <select
@@ -154,7 +166,7 @@ function CadastrarDieta() {
             onChange={handleChange}
           >
             <option value="">-- Selecione --</option>
-            {DIETAS.map((d) => (
+            {dietas.map((d) => (
               <option key={d} value={d}>{d}</option>
             ))}
           </select>
@@ -220,7 +232,7 @@ function CadastrarDieta() {
             onChange={handleChange}
           >
             <option value="">-- Selecione --</option>
-            {OBJETIVOS.map((o, i) => (
+            {objetivos.map((o, i) => (
               <option key={i} value={o}>{o}</option>
             ))}
           </select>
@@ -266,6 +278,7 @@ function CadastrarDieta() {
         </fieldset>
         <button type="submit" className="btn btn-primary">Cadastrar</button>
         {success && <div className="alert alert-success mt-3">Cadastro enviado com sucesso!</div>}
+        {errors.submit && <div className="alert alert-danger mt-3">{errors.submit}</div>}
       </form>
     </div>
   );

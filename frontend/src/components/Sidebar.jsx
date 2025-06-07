@@ -1,11 +1,18 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function Sidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
-  // Corrigido: sempre mantém o texto visível, apenas muda o fundo/texto quando ativo
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
     <div className="d-flex flex-column flex-shrink-0 p-3 bg-primary text-white vh-100" style={{width: '220px', position: 'fixed', top: 0, left: 0, zIndex: 1030}}>
       <Link to="/" className="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
@@ -19,16 +26,7 @@ function Sidebar() {
             className={`nav-link${location.pathname === '/' ? ' active bg-light text-primary' : ' text-white'}`}
             style={{ fontWeight: 500 }}
           >
-            Lista
-          </Link>
-        </li>
-        <li>
-          <Link
-            to="/imc"
-            className={`nav-link${location.pathname === '/imc' ? ' active bg-light text-primary' : ' text-white'}`}
-            style={{ fontWeight: 500 }}
-          >
-            IMC
+            Dietas criadas
           </Link>
         </li>
         <li>
@@ -42,6 +40,15 @@ function Sidebar() {
         </li>
         <li>
           <Link
+            to="/imc"
+            className={`nav-link${location.pathname === '/imc' ? ' active bg-light text-primary' : ' text-white'}`}
+            style={{ fontWeight: 500 }}
+          >
+            IMC
+          </Link>
+        </li>
+        <li>
+          <Link
             to="/agua"
             className={`nav-link${location.pathname === '/agua' ? ' active bg-light text-primary' : ' text-white'}`}
             style={{ fontWeight: 500 }}
@@ -49,7 +56,23 @@ function Sidebar() {
             Água Diária
           </Link>
         </li>
+        <li>
+          <Link
+            to="/tmb"
+            className={`nav-link${location.pathname === '/tmb' ? ' active bg-light text-primary' : ' text-white'}`}
+            style={{ fontWeight: 500 }}
+          >
+            TMB
+          </Link>
+        </li>
       </ul>
+      <hr className="border-light" />
+      <button 
+        onClick={handleLogout}
+        className="btn btn-outline-light w-100"
+      >
+        Sair
+      </button>
     </div>
   );
 }

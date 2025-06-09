@@ -30,11 +30,11 @@ function CadastrarDieta() {
   const [success, setSuccess] = useState(false);
 
   React.useEffect(() => {
-    fetch('http://localhost:3001/api/dietas')
+    fetch('http://localhost:3000/api/dietas')
       .then(res => res.json())
       .then(data => setDietas(data.map(d => d.NOME)));
 
-    fetch('http://localhost:3001/api/objetivos')
+    fetch('http://localhost:3000/api/objetivos')
       .then(res => res.json())
       .then(data => setObjetivos(data.map(o => o.NOME)));
   }, []);
@@ -110,7 +110,7 @@ function CadastrarDieta() {
 
     // ENVIA OS DADOS PARA O BACKEND
     try {
-      const response = await fetch('http://localhost:3001/api/cadastro', {
+      const response = await fetch('http://localhost:3000/api/cadastro', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(parsedForm),
@@ -140,7 +140,7 @@ function CadastrarDieta() {
   };
 
   return (
-    <div className="container mt-4" style={{ maxWidth: 600 }}>
+    <div className="container px-4 py-4" style={{ maxWidth: 600 }}>
       <h2 className="mb-4">Cadastro de Dieta</h2>
       <form onSubmit={handleSubmit}>
         {/* Campo de email */}

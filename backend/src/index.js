@@ -125,12 +125,13 @@ app.post('/api/cadastro', async (req, res) => {
       return res.status(400).json({ error: "Dieta ou Objetivo inválido." });
     }
 
-    const preferenciasEAlergias = [...preferencias, ...alergias].join(';');
+    const preferencias = [...preferencias].join(';');
+    const alergias = [...alergias].join(';');
 
     await db.run(
       `INSERT INTO DIETA_USUARIO (
         ID_USUARIO, ID_DIETA, PESO, ALTURA, IDADE, SEXO,
-        ID_OBJETIVO, ID_PREFERENCIA, NOME_PERSOLIZADO
+        ID_OBJETIVO, PREFERENCIAS, ALERGIAS, NOME_PERSOLIZADO
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         ID_USUARIO,
@@ -140,7 +141,8 @@ app.post('/api/cadastro', async (req, res) => {
         idade,
         sexo,
         objetivoRow.ID_OBJETIVO,
-        preferenciasEAlergias,
+        preferencias,
+        alergias,
         "Plano Personalizado"
       ]
     );
@@ -169,6 +171,35 @@ app.get('/api/objetivos', async (req, res) => {
   } catch (error) {
     console.error("Erro ao buscar objetivos:", error);
     res.status(500).json({ error: "Erro ao buscar objetivos" });
+  }
+});
+
+app.get('/api/dietas-usuarios', async (req, res) => {
+  try {
+    const db = await dbPromise;
+    const dietasUsuarios = await db.all(`
+      SELECT 
+        ID_DIETA_USUARIO         AS idDietaUsuario,
+        DU.ID_USUARIO            AS idUsuario,
+        D.NOME                   AS nomeDieta,
+        PESO                     AS peso,
+        ALTURA                   AS altura,
+        IDADE                    AS idade,
+        SEXO                     AS sexo,
+        O.NOME                   AS objetivo,
+        PREFERENCIAS             AS preferencias,
+        ALERGIAS                 AS alergias,
+        NOME_PERSOLIZADO         AS nomePersolizado,
+        U.EMAIL                  AS emailUsuario
+      FROM DIETA_USUARIO AS DU
+      LEFT JOIN USUARIO AS U ON DU.ID_USUARIO = U.ID_USUARIO
+      LEFT JOIN DIETA AS D ON DU.ID_DIETA = D.ID_DIETA
+      LEFT JOIN OBJETIVO AS O ON DU.ID_OBJETIVO = O.ID_OBJETIVO
+    `);
+    res.json(dietasUsuarios);
+  } catch (error) {
+    console.error("Erro ao buscar dietas dos usuários:", error);
+    res.status(500).json({ error: "Erro ao buscar dietas dos usuários" });
   }
 });
   

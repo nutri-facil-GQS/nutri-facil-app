@@ -112,10 +112,9 @@ app.post('/api/cadastro', async (req, res) => {
   const ID_USUARIO = randomUUID();
 
   try {
-    // Não criptografa mais senha, salva apenas email
     await db.run(
-      `INSERT INTO USUARIO (ID_USUARIO, EMAIL) VALUES (?, ?)`,
-      [ID_USUARIO, email]
+      `INSERT INTO USUARIO (ID_USUARIO, EMAIL, SENHA) VALUES (?, ?, ?)`,
+      [ID_USUARIO, email, null]
     );
 
     const dietaRow = await db.get(`SELECT ID_DIETA FROM DIETA WHERE NOME = ?`, [dieta]);
@@ -125,14 +124,14 @@ app.post('/api/cadastro', async (req, res) => {
       return res.status(400).json({ error: "Dieta ou Objetivo inválido." });
     }
 
-    const preferencias = [...preferencias].join(';');
-    const alergias = [...alergias].join(';');
+    const preferenciasStr = [...preferencias].join(';');
+    const alergiasStr = [...alergias].join(';');
 
     await db.run(
       `INSERT INTO DIETA_USUARIO (
         ID_USUARIO, ID_DIETA, PESO, ALTURA, IDADE, SEXO,
         ID_OBJETIVO, PREFERENCIAS, ALERGIAS, NOME_PERSOLIZADO
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         ID_USUARIO,
         dietaRow.ID_DIETA,
@@ -141,8 +140,8 @@ app.post('/api/cadastro', async (req, res) => {
         idade,
         sexo,
         objetivoRow.ID_OBJETIVO,
-        preferencias,
-        alergias,
+        preferenciasStr,
+        alergiasStr,
         "Plano Personalizado"
       ]
     );

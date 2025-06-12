@@ -191,7 +191,7 @@ app.get('/api/dietas-usuarios', async (req, res) => {
         NOME_PERSOLIZADO         AS nomePersolizado,
         U.EMAIL                  AS emailUsuario
       FROM DIETA_USUARIO AS DU
-      LEFT JOIN USUARIO AS U ON DU.ID_USUARIO = U.ID_USUARIO
+      INNER JOIN USUARIO AS U ON DU.ID_USUARIO = U.ID_USUARIO
       LEFT JOIN DIETA AS D ON DU.ID_DIETA = D.ID_DIETA
       LEFT JOIN OBJETIVO AS O ON DU.ID_OBJETIVO = O.ID_OBJETIVO
     `);

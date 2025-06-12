@@ -21,13 +21,11 @@ NutriFácil é uma plataforma web desenvolvida para auxiliar nutricionistas e cl
 - Bootstrap 5
 - Context API para gerenciamento de estado
 - Zod para validação de formulários
-- Axios para requisições HTTP
 
 ### Backend
 - Node.js
 - Express.js
-- MongoDB para banco de dados
-- JWT para autenticação
+- SQLite para banco de dados
 - Cors para segurança
 
 ### Ferramentas de Desenvolvimento
@@ -38,9 +36,8 @@ NutriFácil é uma plataforma web desenvolvida para auxiliar nutricionistas e cl
 
 ## Pré-requisitos
 
-- Node.js (versão 14 ou superior)
-- npm ou yarn
-- MongoDB instalado e rodando localmente
+- Node.js (versão 20 ou superior)
+- npm
 
 ## Instalação
 
